@@ -1,7 +1,9 @@
 # tomcat9
 Build RPM package CentOS 7 for latest tomcat9
 
-cloned from https://github.com/ulyaoth/repository/tree/master/ulyaoth-tomcat and edited for internal used.
+Cloned from https://github.com/ulyaoth/repository/tree/master/ulyaoth-tomcat and edited for internal used.
+
+The spec file will produce rpm package that will be installed to /opt/ and create symlink to the tomcat folder (such us: /opt/apache-tomcat-9.0.40/).
 
 How to build tomcat9 from spec file:
 
