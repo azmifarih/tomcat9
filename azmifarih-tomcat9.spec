@@ -5,26 +5,9 @@
 %define tomcat_group sfe
 %define tomcat_user sfe
 
-# distribution specific definitions
-%define use_systemd (0%{?fedora} && 0%{?fedora} >= 18) || (0%{?rhel} && 0%{?rhel} >= 7)
-
-%if 0%{?rhel}  == 6
-Requires(pre): shadow-utils
-Requires: initscripts >= 8.36
-Requires(post): chkconfig
-%endif
-
-%if 0%{?rhel}  == 7
 Requires(pre): shadow-utils
 Requires: systemd
 BuildRequires: systemd
-%endif
-
-%if 0%{?fedora} >= 18
-Requires(pre): shadow-utils
-Requires: systemd
-BuildRequires: systemd
-%endif
 
 # end of distribution specific definitions
 
@@ -39,14 +22,11 @@ URL:        https://tomcat.apache.org/
 Vendor:     Apache Software Foundation
 Packager:   Sjir Bagmeijer <sjir.bagmeijer@ulyaoth.com> edited by Azmi <azmi.farih@pareteum.com>
 Source0:    http://apache.mirrors.spacedump.net/tomcat/tomcat-9/v%{version}/bin/apache-tomcat-%{version}.tar.gz
-Source1:    https://raw.githubusercontent.com/ulyaoth/repository/master/ulyaoth-tomcat/SOURCES/tomcat.service
-Source2:    https://raw.githubusercontent.com/ulyaoth/repository/master/ulyaoth-tomcat/SOURCES/tomcat.init
-Source3:    https://raw.githubusercontent.com/ulyaoth/repository/master/ulyaoth-tomcat/SOURCES/tomcat.logrotate
+Source1:    https://raw.githubusercontent.com/azmifarih/tomcat9/main/tomcat.service
 BuildRoot:  %{_tmppath}/tomcat-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Provides: tomcat
 Provides: apache-tomcat
-Provides: apache-tomcat9
 
 %description
 Apache Tomcat is an open source software implementation of the Java Servlet and JavaServer Pages technologies. The Java Servlet and JavaServer Pages specifications are developed under the Java Community Process.
@@ -75,22 +55,10 @@ cd %{buildroot}/%{tomcat_home}%{version}/
 ln -s /var/log/tomcat/ logs
 cd -
 
-%if %{use_systemd}
 # install systemd-specific files
 %{__mkdir} -p $RPM_BUILD_ROOT%{_unitdir}
 %{__install} -m644 %SOURCE1 \
         $RPM_BUILD_ROOT%{_unitdir}/tomcat.service
-%else
-# install SYSV init stuff
-%{__mkdir} -p $RPM_BUILD_ROOT%{_initrddir}
-%{__install} -m755 %{SOURCE2} \
-   $RPM_BUILD_ROOT%{_initrddir}/tomcat
-%endif
-
-# install log rotation stuff
-%{__mkdir} -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
-%{__install} -m 644 -p %{SOURCE3} \
-   $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/tomcat
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -106,7 +74,6 @@ rm -rf /etc/systemd/system/tomcat.service
 %dir %{_localstatedir}/log/tomcat
 
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/logrotate.d/tomcat
 %{_unitdir}/tomcat.service
 
 %post
